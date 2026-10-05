@@ -1,0 +1,46 @@
+name: Windows11_26H2_arm64
+
+on: workflow_dispatch
+
+permissions:
+  contents: write
+
+env:
+  Build_VERSION: '26300.9550'
+  FILE_NAME: Windows11_26H2_arm64
+
+jobs:
+  Windows11_26H2_arm64:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+
+    - name: UUP dump WinISO
+      shell: cmd
+      run: |
+        cd ${{env.FILE_NAME}}
+        dir
+        uup_download_windows.cmd
+
+    - name: dir dir
+      shell: cmd
+      run: |
+        cd ${{env.FILE_NAME}}
+        dir
+
+    - name: Package binaries
+      run: |
+        7z a -v1950M ${{env.FILE_NAME}}-${{env.Build_VERSION}}.7z ./${{env.FILE_NAME}}/*.iso -mx=9
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: ${{env.FILE_NAME}}-${{env.Build_VERSION}}
+        path: ${{env.FILE_NAME}}-${{env.Build_VERSION}}.7z*
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{env.FILE_NAME}}-${{env.Build_VERSION}}
+        release_name: ${{env.FILE_NAME}}-${{env.Build_VERSION}}
+        files: ${{env.FILE_NAME}}-${{env.Build_VERSION}}.7z*
